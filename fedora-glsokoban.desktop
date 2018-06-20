@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=glSokoban
+Comment=Sokoban Game
+Exec=/usr/games/glsokoban
+Terminal=false
+Type=Application
+Categories=GNOME;Application;Game;X-Fedora;
+X-Desktop-File-Install-Version=0.9

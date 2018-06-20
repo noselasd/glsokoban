@@ -1,0 +1,8 @@
+
+# /
+/glsokoban
+/*.o
+/.*.swp
+/fonttool
+/depend
+/.sconsign

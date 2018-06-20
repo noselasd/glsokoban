@@ -1,0 +1,71 @@
+# Project: glSokoban
+# Makefile created by Dev-C++ 4.9.9.1
+
+CPP  = g++.exe
+CC   = gcc.exe
+WINDRES = windres.exe
+RES  = glSokoban_private.res
+OBJ  = ../camera.o ../frame.o ../ftfont.o ../init.o ../input.o ../levels.o ../main.o ../maincamera.o ../material.o ../quat.o ../sky.o ../textures.o ../timer.o ../vector.o $(RES)
+LINKOBJ  = ../camera.o ../frame.o ../ftfont.o ../init.o ../input.o ../levels.o ../main.o ../maincamera.o ../material.o ../quat.o ../sky.o ../textures.o ../timer.o ../vector.o $(RES)
+LIBS =  -L"C:/Program Files/Dev-Cpp/lib" -mwindows -lGLU32  -Wl,-static  -lSDL_image  -lmingw32 -lSDLmain  -Wl,-Bdynamic -lSDL  -lopengl32  
+INCS =  -I"C:/Program Files/Dev-Cpp/include" 
+CXXINCS =  -I"C:/Program Files/Dev-Cpp/include/c++"  -I"C:/Program Files/Dev-Cpp/include/c++/mingw32"  -I"C:/Program Files/Dev-Cpp/include/c++/backward"  -I"C:/Program Files/Dev-Cpp/include" 
+BIN  = ../glSokoban.exe
+CXXFLAGS = $(CXXINCS)   -fexpensive-optimizations
+CFLAGS = $(INCS) -Dmain=SDL_main   -fexpensive-optimizations
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before ../glSokoban.exe all-after
+
+
+clean: clean-custom
+	rm -f $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CC) $(LINKOBJ) -o "..\glSokoban.exe" $(LIBS)
+
+../camera.o: ../camera.c
+	$(CC) -c ../camera.c -o ../camera.o $(CFLAGS)
+
+../frame.o: ../frame.c
+	$(CC) -c ../frame.c -o ../frame.o $(CFLAGS)
+
+../ftfont.o: ../ftfont.c
+	$(CC) -c ../ftfont.c -o ../ftfont.o $(CFLAGS)
+
+../init.o: ../init.c
+	$(CC) -c ../init.c -o ../init.o $(CFLAGS)
+
+../input.o: ../input.c
+	$(CC) -c ../input.c -o ../input.o $(CFLAGS)
+
+../levels.o: ../levels.c
+	$(CC) -c ../levels.c -o ../levels.o $(CFLAGS)
+
+../main.o: ../main.c
+	$(CC) -c ../main.c -o ../main.o $(CFLAGS)
+
+../maincamera.o: ../maincamera.c
+	$(CC) -c ../maincamera.c -o ../maincamera.o $(CFLAGS)
+
+../material.o: ../material.c
+	$(CC) -c ../material.c -o ../material.o $(CFLAGS)
+
+../quat.o: ../quat.c
+	$(CC) -c ../quat.c -o ../quat.o $(CFLAGS)
+
+../sky.o: ../sky.c
+	$(CC) -c ../sky.c -o ../sky.o $(CFLAGS)
+
+../textures.o: ../textures.c
+	$(CC) -c ../textures.c -o ../textures.o $(CFLAGS)
+
+../timer.o: ../timer.c
+	$(CC) -c ../timer.c -o ../timer.o $(CFLAGS)
+
+../vector.o: ../vector.c
+	$(CC) -c ../vector.c -o ../vector.o $(CFLAGS)
+
+glSokoban_private.res: glSokoban_private.rc 
+	$(WINDRES) -i glSokoban_private.rc --input-format=rc -o glSokoban_private.res -O coff 

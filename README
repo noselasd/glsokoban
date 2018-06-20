@@ -1,0 +1,18 @@
+glSokoban 0.0.1
+===============
+
+Install:
+untar and run make in the glsokoban subdir.
+SDL,SDL_image and freetype is needed.
+Contact NOS@Utel.no if you have any problems compiling it.
+
+Synopsis:
+glsokoban [levelfile]
+(There are some level files in the levels subdir/)
+
+Keys:
+r	restart level
+n	next level
+arrows	move ball
+
+
