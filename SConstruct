@@ -1,5 +1,5 @@
 env = Environment()
-env.SourceSignatures("timestamp")
+env.Decider("timestamp-newer")
 #env['CC'] = 'gcc4'
 #env['CC'] = '/opt/intel_cc_80/bin/icc'
 sources = [
