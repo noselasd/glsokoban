@@ -163,7 +163,7 @@ FTFont *load_font(LArena *arena, const char *filename)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA8, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, tex_data);
     // And delete the original memory block
-    //larena_tmp_end(&temp_tex_data);
+    larena_tmp_end(&temp_tex_data);
     fclose(in);
 
     return f;
