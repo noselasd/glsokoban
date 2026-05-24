@@ -75,7 +75,7 @@ FTFont *load_font(const char *filename)
 {
     FILE *in;
     FTFont *f;
-    uint32_t width, height, n_chars;
+    uint32_t width = 1, height = 1, n_chars;
     size_t i;
     struct Glyph_Buffer buffer;
     struct Glyph *default_glyph;
