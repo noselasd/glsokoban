@@ -6,3 +6,5 @@
 /fonttool
 /depend
 /.sconsign*
+compile_commands.json
+.cache

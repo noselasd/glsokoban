@@ -1,5 +1,15 @@
 {
     "files.exclude": {
         "**/*.o": true
-    }
+    },
+    "files.associations": {
+        "*.h": "c",
+        "*.c": "c"
+    },
+    "C_Cpp.default.includePath": [
+        "/opt/homebrew/include/SDL2",
+        "/usr/include/SDL2",
+        "/opt/homebrew/opt/freetype/include/freetype2",
+        "/usr/include/freetype2",
+    ]
 }

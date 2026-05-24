@@ -1,0 +1,17 @@
+---
+BasedOnStyle: Google
+AccessModifierOffset: '-4'
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: WebKit
+IndentWidth: '4'
+ColumnLimit: 120
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+SortIncludes: false
+PointerAlignment: Right
+
+# clang-format 9: AlignConsecutiveMacros: true
+# clang-format 11: AlignConsecutiveBitFields: true
+# clang-format 14: PackConstructorInitializers: Never
+
+...

@@ -1,13 +1,17 @@
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
 #include "common.h"
-#include "maincamera.h"
 #include "init.h"
 #include "input.h"
 #include "timer.h"
@@ -17,112 +21,110 @@ Timer frameTimer;
 
 void do_quit(int code)
 {
-	exit(code);
+    exit(code);
 }
 
 static void install_signals()
 {
-
-
-	signal(SIGTERM, do_quit);
-	signal(SIGINT, do_quit);	//ctrl+c
+    signal(SIGTERM, do_quit);
+    signal(SIGINT, do_quit);  // ctrl+c
 #ifdef __unix
-	signal(SIGHUP, do_quit);
-	signal(SIGQUIT, do_quit);
-	signal(SIGSEGV, do_quit);	//segmentation failt
+    signal(SIGHUP, do_quit);
+    signal(SIGQUIT, do_quit);
+    signal(SIGSEGV, do_quit);  // segmentation failt
 
 #endif
 }
 
 int main(int argc, char *argv[])
 {
-	int moves = 0;
-	/* Information about the current video settings. */
-	double fpslast = 0.0f;
-	int ok;
-	int frames = 0;
-	const char *levelfile;
-	install_signals();
-	init();
-	init_fonts();
-	timer_init(&frameTimer);
-	atexit(SDL_Quit);
+    /* Information about the current video settings. */
+    double fpslast = 0.0f;
+    int frames = 0;
+    const char *levelfile;
+    install_signals();
+    init();
+    init_fonts();
+    timer_init(&frameTimer);
+    atexit(SDL_Quit);
+    GameData game;
+    init_game(&game);
+    if (argc > 1) {
+        levelfile = argv[1];
+    } else
+        levelfile = MAINDIR "/levels/easy.slc";
 
-	if (argc > 1) {
-		levelfile = argv[1];
-	} else
-		levelfile = MAINDIR "/levels/easy.slc";
+    if (load_levels(&game, levelfile) != 0) {
+        fprintf(stderr, "Could not load level %s\n", levelfile);
+        exit(3);
+    }
+    set_level(&game, 0);
+    load_textures(&game);
+    srand((unsigned int)SDL_GetTicks());
+    frame_init(&game);
+    frame_newlevel(&game);
 
-	if (load_levels(levelfile) != 0) {
-		fprintf(stderr, "Could not load level %s\n", levelfile);
-		exit(3);
-	}
-	set_level(0);
-	load_textures();
-	srand((unsigned int) SDL_GetTicks());
-	frame_init();
-	frame_newlevel();
+    /* main loop */
+    for (;;) {
+        enum K_Command cmd;
+        int moved = 0, finished = 0;
+        timer_update(&frameTimer);
+        /* Process incoming events. */
+        cmd = process_events();
+        switch (cmd) {
+            case WINDOW_RESIZED: {
+                int w, h;
+                SDL_GetWindowSize(mainWindow, &w, &h);
+                set_view(w, h);
+            } break;
+            case MOVE:
+                moved = move(&game, get_move());
+                break;
+            case RESTART_LVL:
+                restart_level(&game);
+                frame_newlevel(&game);
+                break;
+            case NEXT_LVL:
+                next_level(&game);
+                frame_newlevel(&game);
+                break;
+            case NOTHING:
+            default:
+                break;
+        }
 
-	/* main loop */
-	for (;;) {
-		enum K_Command cmd;
-		int moved = 0, finished = 0;
-		timer_update(&frameTimer);
-		/* Process incoming events. */
-		cmd = process_events();
-		switch (cmd) {
-		case MOVE:
-			moved = move(get_move());
-			break;
-		case RESTART_LVL:
-			restart_level();
-			frame_newlevel();
-			moves = 0;
-			break;
-		case NEXT_LVL:
-			next_level();
-			frame_newlevel();
-			moves = 0;
-			break;
-		case NOTHING:
-		default:
-			break;
-		}
+        if (moved) {
+            game.nr_moves++;
+            finished = check_goal(&game);
+        }
+        /* Draw the screen. */
+        if (finished) {
+            Timer finisht;
+            timer_init(&finisht);
+            do {
+                frame_begin(&game, finished);
+                frames++;
+                fpslast += timer_last_delta(&frameTimer);
+                timer_update(&frameTimer);
 
-		if (moved) {
-			++moves;
-			finished = check_goal();
-		}
-		/* Draw the screen. */
-		if (finished) {
-			Timer finisht;
-			timer_init(&finisht);
-			do {
+            } while (timer_since_started(&finisht) <= 3.1415f);  // for 3.1415 seconds, stall and draw finished
+            next_level(&game);
+            frame_newlevel(&game);
+        } else {
+            frame_begin(&game, finished);
+            frames++;
+            fpslast += timer_last_delta(&frameTimer);
+        }
 
-				frame_begin(moves, finished);
-				frames++;
-				fpslast += timer_last_delta(&frameTimer);
-				timer_update(&frameTimer);
+        if (fpslast >= 4.0f) {
+            DEBUG("fps %f\n", frames / 4.0f);
+            fpslast = 0.0f;
+            frames = 0;
+        }
+    }
 
-			} while (timer_since_started(&finisht) <= 3.1415f);	//for 3.1415 seconds, stall and draw finished
-			next_level();
-			moves = 0;
-			frame_newlevel();
-		} else {
-			frame_begin(moves, finished);
-			frames++;
-			fpslast += timer_last_delta(&frameTimer);
-		}
-
-		if (fpslast >= 4.0f) {
-			DEBUG("fps %f\n", frames / 4.0f);
-			fpslast = 0.0f;
-			frames = 0;
-		}
-	}
-
-	/* Never reached. */
-	return 0;
+    /* Never reached. */
+    return 0;
 }
 
-//Made by Nils O. Selåsdal
+// Made by Nils O. Selåsdal

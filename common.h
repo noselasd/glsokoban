@@ -1,10 +1,10 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
-#include <stdio.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
+#include "sokoban.h"
 #include "timer.h"
 
-#define DEBUG(x,...) fprintf(stderr,x,__VA_ARGS__);
+#define DEBUG(x, ...) fprintf(stderr, x, __VA_ARGS__);
 
 #define NEAR_PLANE 1.0f
 #define FOV 25.0f
@@ -15,17 +15,14 @@
 #define MAINDIR "./"
 #endif
 
-
-
 void do_quit(int code);
-void frame_begin(int moves, int finished);
-void frame_init(void);
+void frame_begin(GameData *game, int finished);
+void frame_init(GameData *game);
 void ftPrint(const char *str, float x, float y, float size);
-extern SDL_Surface *mainWindow;
+extern SDL_Window *mainWindow;
 extern Timer frameTimer;
 void init_fonts(void);
-void calc_distance(void);
-void frame_newlevel(void);
-
+void calc_distance(GameData *game);
+void frame_newlevel(GameData *game);
 
 #endif
