@@ -100,7 +100,7 @@ struct LArenaTemp {
  */
 #define LARENA_ALLOC_TYPE(allocator, type_) larena_alloc_aligned((allocator), sizeof(type_), _Alignof(type_))
 
-#define LARENA_ALLOC_ARRAY(allocator, type_, nr_elements) larena_alloc_aligned((allocator), nr_elements * sizeof(type_), _Alignof(type_))
+#define LARENA_ALLOC_ARRAY(allocator, type_, nr_elements_) larena_alloc_aligned((allocator), (nr_elements_) * sizeof(type_), _Alignof(type_))
 
 // Arena size in bytes
 static inline size_t larena_size(const LArena *arena)
