@@ -1,3 +1,4 @@
+#include "larena.h"
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #else
@@ -71,7 +72,7 @@ static int pick_glyphbuffer(FILE *f, struct Glyph_Buffer *glyph)
     return 1;
 }
 
-FTFont *load_font(const char *filename)
+FTFont *load_font(LArena *arena, const char *filename)
 {
     FILE *in;
     FTFont *f;
@@ -89,7 +90,7 @@ FTFont *load_font(const char *filename)
         if (in != NULL) fclose(in);
         return NULL;
     }
-    f = malloc(sizeof(*f));
+    f = LARENA_ALLOC_TYPE(arena, FTFont);
     if (f == NULL) {
         fclose(in);
         return NULL;
@@ -114,7 +115,7 @@ FTFont *load_font(const char *filename)
     f->tex_line_height = (float)f->line_height / height;
 
     // Make the glyph table.
-    f->glyphs = malloc(sizeof(struct Glyph) * n_chars);
+    f->glyphs = LARENA_ALLOC_ARRAY(arena, n_chars, struct Glyph);
 
     for (i = 0; i != 256; ++i) f->table[i] = NULL;
 
@@ -123,8 +124,6 @@ FTFont *load_font(const char *filename)
     for (i = 0; i < n_chars; ++i) {
         if (pick_glyphbuffer(in, &buffer) == 0) {
             fclose(in);
-            free(f->glyphs);
-            free(f);
             return NULL;
         }
         f->glyphs[i].tex_x1 = (float)buffer.x / width;
@@ -145,20 +144,16 @@ FTFont *load_font(const char *filename)
         if (f->table[i] == NULL) f->table[i] = default_glyph;
     }
 
+    LArenaTemp temp_tex_data = larena_tmp_begin(arena);
     // Store the actual texid in an array.
-    tex_data = malloc(width * height);
+    tex_data = larena_alloc(arena, width * height);
     if (tex_data == NULL) {
-        free(f->glyphs);
-        free(f);
         fclose(in);
         return NULL;
     }
 
     if (fread(tex_data, 1, width * height, in) != width * height) {
         fclose(in);
-        free(f->glyphs);
-        free(f);
-        free(tex_data);
         return NULL;
     }
     // Generate an alpha texid with it.
@@ -168,7 +163,7 @@ FTFont *load_font(const char *filename)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA8, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, tex_data);
     // And delete the original memory block
-    free(tex_data);
+    larena_tmp_end(&temp_tex_data);
     fclose(in);
 
     return f;
@@ -177,8 +172,6 @@ FTFont *load_font(const char *filename)
 void ftFree(FTFont *f)
 {
     glDeleteTextures(1, &f->texid);
-    free(f->glyphs);
-    free(f);
 }
 
 void ftPrint(const char *str, float x, float y, float size)
@@ -228,12 +221,11 @@ void ftPrint(const char *str, float x, float y, float size)
     glPopAttrib();
 }
 
-void init_fonts(void)
+void init_fonts(LArena *arena)
 {
     FTFont *newf;
 
-    if (mainfont != NULL) ftFree(mainfont);
-    newf = load_font(MAINDIR MAINFONT);
+    newf = load_font(arena, MAINDIR MAINFONT);
     if (newf == NULL) {
         fprintf(stderr, "Error Can't read font %s\n", MAINFONT);
         exit(3);

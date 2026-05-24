@@ -21,7 +21,7 @@ void frame_init(GameData *game);
 void ftPrint(const char *str, float x, float y, float size);
 extern SDL_Window *mainWindow;
 extern Timer frameTimer;
-void init_fonts(void);
+void init_fonts(LArena *arena);
 void calc_distance(GameData *game);
 void frame_newlevel(GameData *game);
 
