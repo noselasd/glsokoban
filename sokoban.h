@@ -11,7 +11,8 @@
 
 #include "larena.h"
 
-enum BrickType { Empty, Background, Wall, Cargo, Goal, GoalCargo };
+enum TileType { Empty, Background, Wall, Cargo, Goal, GoalCargo };
+typedef int8_t Tile;
 typedef struct {
     int x, y;
 } Point;
@@ -30,7 +31,7 @@ typedef struct {
     int lvlnr;
     int width;
     int height;
-    enum BrickType board[MAX_X][MAX_Y];
+    Tile board[MAX_X][MAX_Y];
 } Level;
 
 typedef struct {
