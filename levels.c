@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "larena.h"
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #else
@@ -202,7 +201,9 @@ int load_levels(GameData *game, const char *filename)
     f = fopen(filename, "r");
     if (f == NULL) return -1;
 
-    set->name = strdup(filename);
+    set->name = larena_alloc(game->arena, strlen(filename) + 1);
+    strcpy(set->name, filename);
+
     set->nrlevels = 0;
     set->levels = LARENA_ALLOC_TYPE(game->arena, Level);
     if (set->levels == NULL) {
