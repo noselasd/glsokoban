@@ -70,6 +70,15 @@ static void setup_opengl(int width, int height)
     glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
     // glLightModelfv(GL_LIGHT_MODEL_LOCAL_VIEWER, local_view);
     SDL_GL_SetSwapInterval(1);  // enable vsync
+                                // #include <stdio.h>
+
+    // Debug, what OpenGL version/profile do we have ?
+    const GLubyte *version = glGetString(GL_VERSION);
+    printf("OpenGL Version: %s\n", (const char *)version);
+    // Query the profile mask (Only valid if the version is 3.2 or higher)
+    GLint profileMask = 0;
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profileMask);
+    printf("GL_CONTEXT_PROFILE_MASK: 0x%08X\n", profileMask);
 }
 
 void init(void)
