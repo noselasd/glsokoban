@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
+#include "larena.h"
 #if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -35,20 +36,22 @@ static void install_signals()
 
 #endif
 }
-
 int main(int argc, char *argv[])
 {
     /* Information about the current video settings. */
     double fpslast = 0.0f;
     int frames = 0;
     const char *levelfile;
+    LArena game_arena;
+
+    larena_init(&game_arena, malloc(GAME_ARENA_SZ), GAME_ARENA_SZ);
     install_signals();
     init();
-    init_fonts();
+    init_fonts(&game_arena);
     timer_init(&frameTimer);
     atexit(SDL_Quit);
     GameData game;
-    init_game(&game);
+    init_game(&game, &game_arena);
     if (argc > 1) {
         levelfile = argv[1];
     } else
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
     srand((unsigned int)SDL_GetTicks());
     frame_init(&game);
     frame_newlevel(&game);
-
+    printf("Arena used %zu bytes\n", larena_used(&game_arena));
     /* main loop */
     for (;;) {
         enum K_Command cmd;
@@ -78,7 +81,7 @@ int main(int argc, char *argv[])
                 set_view(w, h);
             } break;
             case MOVE:
-                moved = move(&game, get_move());
+            moved = move(&game.currentLevel, get_move());
                 break;
             case RESTART_LVL:
                 restart_level(&game);
@@ -95,7 +98,7 @@ int main(int argc, char *argv[])
 
         if (moved) {
             game.nr_moves++;
-            finished = check_goal(&game);
+            finished = check_goal(&game.currentLevel);
         }
         /* Draw the screen. */
         if (finished) {

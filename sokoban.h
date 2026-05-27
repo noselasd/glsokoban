@@ -9,7 +9,10 @@
 #include <GL/glu.h>
 #endif
 
-enum BrickType { Empty, Background, Wall, Cargo, Goal, GoalCargo };
+#include "larena.h"
+
+enum TileType { Empty, Background, Wall, Cargo, Goal, GoalCargo };
+typedef int8_t Tile;
 typedef struct {
     int x, y;
 } Point;
@@ -28,7 +31,7 @@ typedef struct {
     int lvlnr;
     int width;
     int height;
-    enum BrickType board[MAX_X][MAX_Y];
+    Tile board[MAX_X][MAX_Y];
 } Level;
 
 typedef struct {
@@ -40,21 +43,24 @@ enum Direction { UP, DOWN, LEFT, RIGHT };
 
 enum TexName { Brick, Sky, NumTextures };
 
+#define GAME_ARENA_SZ (1024*1000)
+
 typedef struct {
     Level currentLevel;
     LevelSet levels;
     int nr_moves;
     GLuint textures[NumTextures];
+    LArena *arena;
 } GameData;
 
-void init_game(GameData *game);
+void init_game(GameData *game, LArena *arena);
 int load_levels(GameData *game, const char *filename);
 void load_textures(GameData *game);
 extern GLuint textures[NumTextures];
 int set_level(GameData *game, int nr);
 int next_level(GameData *game);
-int move(GameData *game, enum Direction d);
+int move(Level *level, enum Direction d);
 int restart_level(GameData *game);
-int check_goal(GameData *game);
+int check_goal(Level *level);
 
 #endif

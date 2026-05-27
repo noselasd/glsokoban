@@ -12,14 +12,13 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 static Level nulllevel;
 
-int check_goal(GameData *game)
+int check_goal(Level *level)
 {
     int x, y;
-    Level *current = &game->currentLevel;
 
-    for (y = 0; y < current->height; y++) {
-        for (x = 0; x < current->width; x++) {
-            if (current->board[x][y] == Goal) return 0;
+    for (y = 0; y < level->height; y++) {
+        for (x = 0; x < level->width; x++) {
+            if (level->board[x][y] == Goal) return 0;
         }
     }
 
@@ -31,36 +30,35 @@ static void next_line(FILE *f)
     while ((c = fgetc(f)) != EOF && c != '\n');
 }
 
-int move(GameData *game, enum Direction d)
+int move(Level *level, enum Direction d)
 {
-    Level *current = &game->currentLevel;
-    Point g = current->playerPos;
+    Point g = level->playerPos;
     int moved = 0;
 
     /* this is messy; no time for math */
     switch (d) {
         case UP:
-            switch (current->board[g.x][g.y - 1]) {
+            switch (level->board[g.x][g.y - 1]) {
                 case Empty:
                 case Goal:
                     moved = 1;
-                    current->playerPos = Pt(g.x, g.y - 1);
+                    level->playerPos = Pt(g.x, g.y - 1);
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (current->board[g.x][g.y - 2]) {
+                    switch (level->board[g.x][g.y - 2]) {
                         case Empty:
                             moved = 1;
-                            current->board[g.x][g.y - 2] = Cargo;
+                            level->board[g.x][g.y - 2] = Cargo;
                             break;
                         case Goal:
                             moved = 1;
-                            current->board[g.x][g.y - 2] = GoalCargo;
+                            level->board[g.x][g.y - 2] = GoalCargo;
                             break;
                     }
                     if (moved) {
-                        current->board[g.x][g.y - 1] = (current->board[g.x][g.y - 1] == Cargo) ? Empty : Goal;
-                        current->playerPos = Pt(g.x, g.y - 1);
+                        level->board[g.x][g.y - 1] = (level->board[g.x][g.y - 1] == Cargo) ? Empty : Goal;
+                        level->playerPos = Pt(g.x, g.y - 1);
                     }
                     break;
                 default:
@@ -68,79 +66,79 @@ int move(GameData *game, enum Direction d)
             }
             break;
         case DOWN:
-            switch (current->board[g.x][g.y + 1]) {
+            switch (level->board[g.x][g.y + 1]) {
                 case Empty:
                 case Goal:
                     moved = 1;
-                    current->playerPos = Pt(g.x, g.y + 1);
+                    level->playerPos = Pt(g.x, g.y + 1);
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (current->board[g.x][g.y + 2]) {
+                    switch (level->board[g.x][g.y + 2]) {
                         case Empty:
                             moved = 1;
-                            current->board[g.x][g.y + 2] = Cargo;
+                            level->board[g.x][g.y + 2] = Cargo;
                             break;
                         case Goal:
                             moved = 1;
-                            current->board[g.x][g.y + 2] = GoalCargo;
+                            level->board[g.x][g.y + 2] = GoalCargo;
                             break;
                     }
                     if (moved) {
-                        current->board[g.x][g.y + 1] = (current->board[g.x][g.y + 1] == Cargo) ? Empty : Goal;
-                        current->playerPos = Pt(g.x, g.y + 1);
+                        level->board[g.x][g.y + 1] = (level->board[g.x][g.y + 1] == Cargo) ? Empty : Goal;
+                        level->playerPos = Pt(g.x, g.y + 1);
                     }
                     break;
             }
             break;
         case LEFT:
-            switch (current->board[g.x - 1][g.y]) {
+            switch (level->board[g.x - 1][g.y]) {
                 case Empty:
                 case Goal:
                     moved = 1;
-                    current->playerPos = Pt(g.x - 1, g.y);
+                    level->playerPos = Pt(g.x - 1, g.y);
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (current->board[g.x - 2][g.y]) {
+                    switch (level->board[g.x - 2][g.y]) {
                         case Empty:
                             moved = 1;
-                            current->board[g.x - 2][g.y] = Cargo;
+                            level->board[g.x - 2][g.y] = Cargo;
                             break;
                         case Goal:
                             moved = 1;
-                            current->board[g.x - 2][g.y] = GoalCargo;
+                            level->board[g.x - 2][g.y] = GoalCargo;
                             break;
                     }
                     if (moved) {
-                        current->board[g.x - 1][g.y] = (current->board[g.x - 1][g.y] == Cargo) ? Empty : Goal;
-                        current->playerPos = Pt(g.x - 1, g.y);
+                        level->board[g.x - 1][g.y] = (level->board[g.x - 1][g.y] == Cargo) ? Empty : Goal;
+                        level->playerPos = Pt(g.x - 1, g.y);
                     }
                     break;
             }
             break;
         case RIGHT:
-            switch (current->board[g.x + 1][g.y]) {
+            switch (level->board[g.x + 1][g.y]) {
                 case Empty:
                 case Goal:
                     moved = 1;
-                    current->playerPos = Pt(g.x + 1, g.y);
+                    level->playerPos = Pt(g.x + 1, g.y);
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (current->board[g.x + 2][g.y]) {
+                    switch (level->board[g.x + 2][g.y]) {
                         case Empty:
                             moved = 1;
-                            current->board[g.x + 2][g.y] = Cargo;
+                            level->board[g.x + 2][g.y] = Cargo;
                             break;
                         case Goal:
                             moved = 1;
-                            current->board[g.x + 2][g.y] = GoalCargo;
+                            level->board[g.x + 2][g.y] = GoalCargo;
                             break;
                     }
                     if (moved) {
-                        current->board[g.x + 1][g.y] = (current->board[g.x + 1][g.y] == Cargo) ? Empty : Goal;
-                        current->playerPos = Pt(g.x + 1, g.y);
+                        level->board[g.x + 1][g.y] = (level->board[g.x + 1][g.y] == Cargo) ? Empty : Goal;
+                        level->playerPos = Pt(g.x + 1, g.y);
                     }
                     break;
             }
@@ -203,9 +201,11 @@ int load_levels(GameData *game, const char *filename)
     f = fopen(filename, "r");
     if (f == NULL) return -1;
 
-    set->name = strdup(filename);
+    set->name = larena_alloc(game->arena, strlen(filename) + 1);
+    strcpy(set->name, filename);
+
     set->nrlevels = 0;
-    set->levels = malloc(sizeof *l);
+    set->levels = LARENA_ALLOC_TYPE(game->arena, Level);
     if (set->levels == NULL) {
         fclose(f);
         return -1;
@@ -259,15 +259,15 @@ int load_levels(GameData *game, const char *filename)
                     lnum++;
                     l->lvlnr = lnum;
                     set->nrlevels++;
-                    Level *nl;
-                    nl = realloc(set->levels, sizeof(Level) * (lnum + 1));
+                    // We're only allocating Level in this loop, so we know it's
+                    // laid out continously at set->levels
+                    Level *nl = LARENA_ALLOC_TYPE(game->arena, Level);
                     if (nl == NULL) {
                         fprintf(stdout, "Out of memory loading levels\n");
                         abort();
                     }
 
-                    set->levels = nl;
-                    l = &set->levels[set->nrlevels];
+                    l = nl;
                     init_level(l);
                     y = 0;
                 } else
@@ -326,10 +326,11 @@ int restart_level(GameData *game)
     return 0;
 }
 
-void init_game(GameData *game)
+void init_game(GameData *game, LArena *arena)
 {
     memset(game, 0, sizeof *game);
     game->currentLevel = nulllevel;
+    game->arena = arena;
 }
 
 void print_levels(LevelSet *l)

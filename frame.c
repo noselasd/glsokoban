@@ -258,7 +258,7 @@ void calc_distance(GameData *game)
     else
         max = game->currentLevel.width / 1.33333;
     zadjust = fabs((max) / tan(fov));
-    camera_truck_y(&mainCamera, game->currentLevel.height / 2.6666);
+    camera_truck_y(&mainCamera, -game->currentLevel.height/2.6  );
     camera_truck_x(&mainCamera, game->currentLevel.width / 2.0f);
     camera_truck_z(&mainCamera, (zadjust / 2.0f) + 3.0f);
 }
