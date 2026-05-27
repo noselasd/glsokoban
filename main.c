@@ -115,6 +115,8 @@ int main(int argc, char *argv[])
             anim.from = player_pos;
             vec3_t to = {.x = game.currentLevel.playerPos.x, .y = game.currentLevel.playerPos.y, .z = 0};
             anim.to = to;
+            printf("Animating from [%f,%f,%f] to [%f,%f,%f]\n", anim.from.x, anim.from.y, anim.from.z,
+                    anim.to.x, anim.to.y, anim.to.z);
             anim.elapsed = 0;
             anim.duration = 0.5;
             anim.running = 1;
@@ -124,11 +126,16 @@ int main(int argc, char *argv[])
             vec3_t pos;
             double dt = timer_last_delta(&frameTimer);
             anim.elapsed += dt;
-            vec3_lerp(&anim.from, &anim.to, &pos, dt / anim.duration);
+            vec3_lerp(&anim.from, &anim.to, &pos, anim.elapsed / anim.duration);
             printf("Player anim pos [%f, %f, %f]\n", pos.x, pos.y, pos.z);
             if (anim.elapsed >= anim.duration) {
                 anim.running = 0;
             }
+            game.override_player_pos = 1;
+            game.player_x = pos.x;
+            game.player_y = pos.y;
+        } else {
+            game.override_player_pos = 0;
         }
         /* Draw the screen. */
         if (finished) {

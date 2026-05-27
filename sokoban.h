@@ -51,6 +51,9 @@ typedef struct {
     int nr_moves;
     GLuint textures[NumTextures];
     LArena *arena;
+    int override_player_pos;
+    float player_x;
+    float player_y;
 } GameData;
 
 void init_game(GameData *game, LArena *arena);

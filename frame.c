@@ -120,13 +120,12 @@ static void draw_cargo(int x, int y)
     glTranslatef((float)-x - 0.5f, (float)y - 0.5f,
                  0.0f);  // and translate back again
 }
-static void draw_player(Point *p)
+static void draw_player(float x,float y)
 {
     material_apply(&m_silver);
-    glTranslatef((float)p->x + 0.5f, (float)-p->y + 0.5f, 0.0f);
+    glTranslatef(x + 0.5f, -y + 0.5f, 0.0f);
     gluSphere(sphereQ, 0.48f, 29, 29);
-    glTranslatef((float)-p->x - 0.5f, (float)p->y - 0.5f,
-                 0.0f);  // and translate back again
+    glTranslatef(-x - 0.5f, y - 0.5f, 0.0f);  // and translate back again
 }
 
 static void draw_background(int x, int y)
@@ -188,7 +187,15 @@ static void glDrawLevel(GameData *game, Level *l)
         }
     }
 
-    draw_player(&l->playerPos);
+    float px,py;
+    if (game->override_player_pos) {
+        px = game->player_x;
+        py = game->player_y;
+    } else {
+        px = l->playerPos.x;
+        py = l->playerPos.y;
+    }
+    draw_player(px, py);
 }
 
 void frame_init(GameData *game)

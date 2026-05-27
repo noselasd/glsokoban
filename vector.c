@@ -117,9 +117,9 @@ vec3_t *vec3_normal(const vec3_t *vVector, vec3_t *result)
 
 vec3_t *vec3_lerp(const vec3_t *vFrom, const vec3_t *vTo, vec3_t *result, float t)
 {
-    result->x = (vTo->x - vFrom->x) * t;
-    result->y = (vTo->y - vFrom->y) * t;
-    result->z = (vTo->z - vFrom->z) * t;
+    result->x = vFrom->x + (vTo->x - vFrom->x) * t;
+    result->y = vFrom->y + (vTo->y - vFrom->y) * t;
+    result->z = vFrom->z + (vTo->z - vFrom->z) * t;
 
     return result;
 }
