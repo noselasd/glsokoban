@@ -17,6 +17,7 @@
 #include "input.h"
 #include "timer.h"
 #include "sokoban.h"
+#include "vector.h"
 
 Timer frameTimer;
 
@@ -36,6 +37,15 @@ static void install_signals()
 
 #endif
 }
+
+typedef struct move_animation move_animation;
+struct move_animation {
+    vec3_t from;
+    vec3_t to;
+    double elapsed;
+    double duration;
+    int running;
+};
 int main(int argc, char *argv[])
 {
     /* Information about the current video settings. */
@@ -68,11 +78,14 @@ int main(int argc, char *argv[])
     frame_newlevel(&game);
     printf("Arena used %zu bytes\n", larena_used(&game_arena));
     /* main loop */
+    move_animation anim;
     for (;;) {
         enum K_Command cmd;
         int moved = 0, finished = 0;
         timer_update(&frameTimer);
         /* Process incoming events. */
+        vec3_t player_pos = {.x = game.currentLevel.playerPos.x, .y = game.currentLevel.playerPos.y, .z = 0};
+
         cmd = process_events();
         switch (cmd) {
             case WINDOW_RESIZED: {
@@ -81,7 +94,7 @@ int main(int argc, char *argv[])
                 set_view(w, h);
             } break;
             case MOVE:
-            moved = move(&game.currentLevel, get_move());
+                moved = move(&game.currentLevel, get_move());
                 break;
             case RESTART_LVL:
                 restart_level(&game);
@@ -99,6 +112,23 @@ int main(int argc, char *argv[])
         if (moved) {
             game.nr_moves++;
             finished = check_goal(&game.currentLevel);
+            anim.from = player_pos;
+            vec3_t to = {.x = game.currentLevel.playerPos.x, .y = game.currentLevel.playerPos.y, .z = 0};
+            anim.to = to;
+            anim.elapsed = 0;
+            anim.duration = 0.5;
+            anim.running = 1;
+        }
+
+        if (anim.running) {
+            vec3_t pos;
+            double dt = timer_last_delta(&frameTimer);
+            anim.elapsed += dt;
+            vec3_lerp(&anim.from, &anim.to, &pos, dt / anim.duration);
+            printf("Player anim pos [%f, %f, %f]\n", pos.x, pos.y, pos.z);
+            if (anim.elapsed >= anim.duration) {
+                anim.running = 0;
+            }
         }
         /* Draw the screen. */
         if (finished) {

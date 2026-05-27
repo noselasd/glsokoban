@@ -19,5 +19,6 @@ float vec3_dot(const vec3_t *vector1, const vec3_t *vector2);
 float vec3_length(const vec3_t *vector);
 vec3_t *vec3_normalize(vec3_t *vector);
 vec3_t *vec3_normal(const vec3_t *vVector, vec3_t *result);
+vec3_t *vec3_lerp(const vec3_t *vFrom, const vec3_t *vTo, vec3_t *result, float t);
 
 #endif
