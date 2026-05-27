@@ -94,11 +94,7 @@ int main(int argc, char *argv[])
                 set_view(w, h);
             } break;
             case MOVE:
-<<<<<<< HEAD
                 moved = move(&game.currentLevel, get_move());
-=======
-            moved = move(&game.currentLevel, get_move());
->>>>>>> ca9131bfa67a6b17b0d68ef7eafa87b3b48c00c5
                 break;
             case RESTART_LVL:
                 restart_level(&game);
@@ -116,7 +112,6 @@ int main(int argc, char *argv[])
         if (moved) {
             game.nr_moves++;
             finished = check_goal(&game.currentLevel);
-<<<<<<< HEAD
             anim.from = player_pos;
             vec3_t to = {.x = game.currentLevel.playerPos.x, .y = game.currentLevel.playerPos.y, .z = 0};
             anim.to = to;
@@ -134,8 +129,6 @@ int main(int argc, char *argv[])
             if (anim.elapsed >= anim.duration) {
                 anim.running = 0;
             }
-=======
->>>>>>> ca9131bfa67a6b17b0d68ef7eafa87b3b48c00c5
         }
         /* Draw the screen. */
         if (finished) {
