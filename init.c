@@ -77,7 +77,7 @@ static void setup_opengl(int width, int height)
     printf("OpenGL Version: %s\n", (const char *)version);
     // Query the profile mask (Only valid if the version is 3.2 or higher)
     GLint profileMask = 0;
-    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profileMask);
+    glGetIntegerv(SDL_GL_CONTEXT_PROFILE_MASK, &profileMask);
     printf("GL_CONTEXT_PROFILE_MASK: 0x%08X\n", profileMask);
 }
 
