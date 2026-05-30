@@ -148,7 +148,8 @@ enum K_Command process_events(void)
                 break;
         }
     }
-
+    // Note(nos): Issue: caller will only act and handle on 1 event per frame.
+    // Do we want that ? (might be ok for movement)
     return cmd;
 }
 

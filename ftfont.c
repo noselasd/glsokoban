@@ -224,7 +224,7 @@ void ftPrint(const char *str, float x, float y, float size)
 void init_fonts(LArena *arena)
 {
     FTFont *newf;
-    assert(mainWindow == NULL);
+    assert(mainfont == NULL);
     newf = load_font(arena, MAINDIR MAINFONT);
     if (newf == NULL) {
         fprintf(stderr, "Error Can't read font %s\n", MAINFONT);

@@ -46,7 +46,7 @@ void sky_draw(void)
 {
     float f = 6.0f * sinf(timer_since_started(&frameTimer) * 0.1f);
 
-    glPushAttrib(GL_LIGHTING_BIT | GL_DEPTH_BITS);
+    glPushAttrib(GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
     glDisable(GL_LIGHTING);
     glDepthMask(GL_FALSE);

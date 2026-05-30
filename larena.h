@@ -167,7 +167,7 @@ static inline void *larena_alloc_aligned(LArena *arena, size_t sz, unsigned int 
     uintptr_t aligned = (curr + (align - (uintptr_t)1)) & ~(align - (uintptr_t)1);
     uint8_t *start = (uint8_t *)aligned;
 
-    if (sz > (larena_available(arena))) {
+    if (sz > (size_t)(arena->end - start)) {
         return NULL;
     }
 

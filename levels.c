@@ -30,6 +30,10 @@ static void next_line(FILE *f)
     while ((c = fgetc(f)) != EOF && c != '\n');
 }
 
+// Note(nos): This code assumes the level is all surrounded by walls.
+// otherwise we do out of bounds access. Levels *should* have walls all around,
+// but we don't verify this anywhere.
+
 int move(Level *level, enum Direction d)
 {
     Point g = level->playerPos;
