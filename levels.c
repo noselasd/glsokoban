@@ -287,7 +287,7 @@ int load_levels(GameData *game, const char *filename)
         if (x >= MAX_X || y >= MAX_Y) {
             fprintf(stderr, "To big board '%d,%d' in %s\n", x, y, filename);
             x = MIN(x - 1, MAX_X - 1);
-            y = MIN(x - 1, MAX_Y - 1);
+            y = MIN(y - 1, MAX_Y - 1);
         }
     }
 
