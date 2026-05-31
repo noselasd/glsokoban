@@ -11,5 +11,6 @@
         "/usr/include/SDL2",
         "/opt/homebrew/opt/freetype/include/freetype2",
         "/usr/include/freetype2",
-    ]
+    ],
+    "editor.formatOnSave": true
 }

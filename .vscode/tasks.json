@@ -6,7 +6,7 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "scons -Q",
+            "command": "make",
             "problemMatcher": [
                 "$gcc"
             ]
@@ -14,7 +14,7 @@
         {
             "label": "clean",
             "type": "shell",
-            "command": "scons -c",
+            "command": "make clean",
             "problemMatcher": []
         }
     ]

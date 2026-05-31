@@ -58,6 +58,8 @@ depend: $(C_FILES) $(H_FILES)
 # info for clangd language server
 compile_commands.json: Makefile
 	bear -- $(MAKE) clean all
+ifneq ($(filter clean,$(MAKECMDGOALS)),clean)
 include depend
+endif
 
 .PHONY: all clean
