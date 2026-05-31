@@ -41,7 +41,7 @@ $(PROG_NAME): $(O_FILES) LucidaSR.font
 
 fonttool : fonttool.c
 	$(CC) -std=gnu99 $(CFLAGS) $(FONTTOOL_CFLAGS)  -o fonttool.o -c fonttool.c
-	$(CC) $(FONTTOOL_LIBS) -lm -o $@  fonttool.o
+	$(CC) -o $@  fonttool.o $(FONTTOOL_LIBS) -lm 
 
 LucidaSR.font: fonttool
 	./fonttool LucidaSansRegular.ttf LucidaSR.font 28

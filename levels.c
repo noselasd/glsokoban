@@ -43,7 +43,7 @@ Tile get_tile(const Level *level, Point pt)
     return level->board[pt.x][pt.y];
 }
 
-int move_new(Level *level, enum Direction d)
+int move(Level *level, enum Direction d)
 {
     Point player = level->playerPos;
     Point player_next_pos;
@@ -96,127 +96,6 @@ int move_new(Level *level, enum Direction d)
     }
 
     return move_player;
-}
-// Note(nos): This code assumes the level is all surrounded by walls.
-// otherwise we do out of bounds access. Levels *should* have walls all around,
-// but we don't verify this anywhere.
-
-int move(Level *level, enum Direction d)
-{
-    Point g = level->playerPos;
-    int moved = 0;
-
-    /* this is messy; no time for math */
-    switch (d) {
-        case UP:
-            switch (get_tile(level, Pt(g.x, g.y - 1))) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x, g.y - 1);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (get_tile(level, Pt(g.x, g.y - 2))) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x][g.y - 2] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x][g.y - 2] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x][g.y - 1] = (level->board[g.x][g.y - 1] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x, g.y - 1);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case DOWN:
-            switch (get_tile(level, Pt(g.x, g.y + 1))) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x, g.y + 1);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (get_tile(level, Pt(g.x, g.y + 2))) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x][g.y + 2] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x][g.y + 2] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x][g.y + 1] = (level->board[g.x][g.y + 1] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x, g.y + 1);
-                    }
-                    break;
-            }
-            break;
-        case LEFT:
-            switch (get_tile(level, Pt(g.x - 1, g.y))) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x - 1, g.y);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (get_tile(level, Pt(g.x - 2, g.y))) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x - 2][g.y] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x - 2][g.y] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x - 1][g.y] = (level->board[g.x - 1][g.y] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x - 1, g.y);
-                    }
-                    break;
-            }
-            break;
-        case RIGHT:
-            switch (get_tile(level, Pt(g.x + 1, g.y))) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x + 1, g.y);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (get_tile(level, Pt(g.x + 2, g.y))) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x + 2][g.y] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x + 2][g.y] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x + 1][g.y] = (level->board[g.x + 1][g.y] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x + 1, g.y);
-                    }
-                    break;
-            }
-            break;
-    }
-
-    return moved;
 }
 
 static void init_level(Level *l)
