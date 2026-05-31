@@ -8,6 +8,7 @@
 #endif
 
 #include "sokoban.h"
+#include <assert.h>
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 static Level nulllevel;
@@ -30,6 +31,72 @@ static void next_line(FILE *f)
     while ((c = fgetc(f)) != EOF && c != '\n');
 }
 
+Tile get_tile(const Level *level, Point pt)
+{
+    if (pt.x < 0 || pt.x >= level->width) {
+        return Wall;
+    }
+    if (pt.y < 0 || pt.y >= level->height) {
+        return Wall;
+    }
+
+    return level->board[pt.x][pt.y];
+}
+
+int move_new(Level *level, enum Direction d)
+{
+    Point player = level->playerPos;
+    Point player_next_pos;
+    Point cargo_next_pos;
+
+    if (d == UP) {
+        player_next_pos = Pt(player.x, player.y - 1);
+        cargo_next_pos = Pt(player.x, player.y - 2);
+    } else if (d == DOWN) {
+        player_next_pos = Pt(player.x, player.y + 1);
+        cargo_next_pos = Pt(player.x, player.y + 2);
+    } else if (d == LEFT) {
+        player_next_pos = Pt(player.x - 1, player.y);
+        cargo_next_pos = Pt(player.x - 2, player.y);
+    } else if (d == RIGHT) {
+        player_next_pos = Pt(player.x + 1, player.y);
+        cargo_next_pos = Pt(player.x + 2, player.y);
+    } else {
+        assert(0);
+        return 0;
+    }
+
+    Tile at_player_next_pos = get_tile(level, player_next_pos);
+    int move_player = 0;
+    // player move only
+    if (at_player_next_pos == Empty || at_player_next_pos == Goal) {
+        move_player = 1;
+    } else if (at_player_next_pos == Cargo || at_player_next_pos == GoalCargo) {
+        Tile at_cargo_next_pos = get_tile(level, cargo_next_pos);
+
+        if (at_cargo_next_pos == Empty) {
+            move_player = 1;
+
+            level->board[cargo_next_pos.x][cargo_next_pos.y] = Cargo;
+
+        } else if (at_cargo_next_pos == Goal) {
+            move_player = 1;
+
+            level->board[cargo_next_pos.x][cargo_next_pos.y] = GoalCargo;
+        }
+    }
+
+    if (move_player) {
+        if (at_player_next_pos == Cargo) {
+            level->board[player_next_pos.x][player_next_pos.y] = Empty;
+        } else if (at_player_next_pos == GoalCargo) {
+            level->board[player_next_pos.x][player_next_pos.y] = Goal;
+        }
+        level->playerPos = player_next_pos;
+    }
+
+    return move_player;
+}
 // Note(nos): This code assumes the level is all surrounded by walls.
 // otherwise we do out of bounds access. Levels *should* have walls all around,
 // but we don't verify this anywhere.
@@ -42,7 +109,7 @@ int move(Level *level, enum Direction d)
     /* this is messy; no time for math */
     switch (d) {
         case UP:
-            switch (level->board[g.x][g.y - 1]) {
+            switch (get_tile(level, Pt(g.x, g.y - 1))) {
                 case Empty:
                 case Goal:
                     moved = 1;
@@ -50,7 +117,7 @@ int move(Level *level, enum Direction d)
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (level->board[g.x][g.y - 2]) {
+                    switch (get_tile(level, Pt(g.x, g.y - 2))) {
                         case Empty:
                             moved = 1;
                             level->board[g.x][g.y - 2] = Cargo;
@@ -70,7 +137,7 @@ int move(Level *level, enum Direction d)
             }
             break;
         case DOWN:
-            switch (level->board[g.x][g.y + 1]) {
+            switch (get_tile(level, Pt(g.x, g.y + 1))) {
                 case Empty:
                 case Goal:
                     moved = 1;
@@ -78,7 +145,7 @@ int move(Level *level, enum Direction d)
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (level->board[g.x][g.y + 2]) {
+                    switch (get_tile(level, Pt(g.x, g.y + 2))) {
                         case Empty:
                             moved = 1;
                             level->board[g.x][g.y + 2] = Cargo;
@@ -96,7 +163,7 @@ int move(Level *level, enum Direction d)
             }
             break;
         case LEFT:
-            switch (level->board[g.x - 1][g.y]) {
+            switch (get_tile(level, Pt(g.x - 1, g.y))) {
                 case Empty:
                 case Goal:
                     moved = 1;
@@ -104,7 +171,7 @@ int move(Level *level, enum Direction d)
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (level->board[g.x - 2][g.y]) {
+                    switch (get_tile(level, Pt(g.x - 2, g.y))) {
                         case Empty:
                             moved = 1;
                             level->board[g.x - 2][g.y] = Cargo;
@@ -122,7 +189,7 @@ int move(Level *level, enum Direction d)
             }
             break;
         case RIGHT:
-            switch (level->board[g.x + 1][g.y]) {
+            switch (get_tile(level, Pt(g.x + 1, g.y))) {
                 case Empty:
                 case Goal:
                     moved = 1;
@@ -130,7 +197,7 @@ int move(Level *level, enum Direction d)
                     break;
                 case Cargo:
                 case GoalCargo:
-                    switch (level->board[g.x + 2][g.y]) {
+                    switch (get_tile(level, Pt(g.x + 2, g.y))) {
                         case Empty:
                             moved = 1;
                             level->board[g.x + 2][g.y] = Cargo;
