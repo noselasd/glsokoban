@@ -8,6 +8,7 @@
 #endif
 
 #include "sokoban.h"
+#include <assert.h>
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 static Level nulllevel;
@@ -30,126 +31,71 @@ static void next_line(FILE *f)
     while ((c = fgetc(f)) != EOF && c != '\n');
 }
 
-// Note(nos): This code assumes the level is all surrounded by walls.
-// otherwise we do out of bounds access. Levels *should* have walls all around,
-// but we don't verify this anywhere.
+Tile get_tile(const Level *level, Point pt)
+{
+    if (pt.x < 0 || pt.x >= level->width) {
+        return Wall;
+    }
+    if (pt.y < 0 || pt.y >= level->height) {
+        return Wall;
+    }
+
+    return level->board[pt.x][pt.y];
+}
 
 int move(Level *level, enum Direction d)
 {
-    Point g = level->playerPos;
-    int moved = 0;
+    Point player = level->playerPos;
+    Point player_next_pos;
+    Point cargo_next_pos;
 
-    /* this is messy; no time for math */
-    switch (d) {
-        case UP:
-            switch (level->board[g.x][g.y - 1]) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x, g.y - 1);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (level->board[g.x][g.y - 2]) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x][g.y - 2] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x][g.y - 2] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x][g.y - 1] = (level->board[g.x][g.y - 1] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x, g.y - 1);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case DOWN:
-            switch (level->board[g.x][g.y + 1]) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x, g.y + 1);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (level->board[g.x][g.y + 2]) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x][g.y + 2] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x][g.y + 2] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x][g.y + 1] = (level->board[g.x][g.y + 1] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x, g.y + 1);
-                    }
-                    break;
-            }
-            break;
-        case LEFT:
-            switch (level->board[g.x - 1][g.y]) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x - 1, g.y);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (level->board[g.x - 2][g.y]) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x - 2][g.y] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x - 2][g.y] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x - 1][g.y] = (level->board[g.x - 1][g.y] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x - 1, g.y);
-                    }
-                    break;
-            }
-            break;
-        case RIGHT:
-            switch (level->board[g.x + 1][g.y]) {
-                case Empty:
-                case Goal:
-                    moved = 1;
-                    level->playerPos = Pt(g.x + 1, g.y);
-                    break;
-                case Cargo:
-                case GoalCargo:
-                    switch (level->board[g.x + 2][g.y]) {
-                        case Empty:
-                            moved = 1;
-                            level->board[g.x + 2][g.y] = Cargo;
-                            break;
-                        case Goal:
-                            moved = 1;
-                            level->board[g.x + 2][g.y] = GoalCargo;
-                            break;
-                    }
-                    if (moved) {
-                        level->board[g.x + 1][g.y] = (level->board[g.x + 1][g.y] == Cargo) ? Empty : Goal;
-                        level->playerPos = Pt(g.x + 1, g.y);
-                    }
-                    break;
-            }
-            break;
+    if (d == UP) {
+        player_next_pos = Pt(player.x, player.y - 1);
+        cargo_next_pos = Pt(player.x, player.y - 2);
+    } else if (d == DOWN) {
+        player_next_pos = Pt(player.x, player.y + 1);
+        cargo_next_pos = Pt(player.x, player.y + 2);
+    } else if (d == LEFT) {
+        player_next_pos = Pt(player.x - 1, player.y);
+        cargo_next_pos = Pt(player.x - 2, player.y);
+    } else if (d == RIGHT) {
+        player_next_pos = Pt(player.x + 1, player.y);
+        cargo_next_pos = Pt(player.x + 2, player.y);
+    } else {
+        assert(0);
+        return 0;
     }
 
-    return moved;
+    Tile at_player_next_pos = get_tile(level, player_next_pos);
+    int move_player = 0;
+    // player move only
+    if (at_player_next_pos == Empty || at_player_next_pos == Goal) {
+        move_player = 1;
+    } else if (at_player_next_pos == Cargo || at_player_next_pos == GoalCargo) {
+        Tile at_cargo_next_pos = get_tile(level, cargo_next_pos);
+
+        if (at_cargo_next_pos == Empty) {
+            move_player = 1;
+
+            level->board[cargo_next_pos.x][cargo_next_pos.y] = Cargo;
+
+        } else if (at_cargo_next_pos == Goal) {
+            move_player = 1;
+
+            level->board[cargo_next_pos.x][cargo_next_pos.y] = GoalCargo;
+        }
+    }
+
+    if (move_player) {
+        if (at_player_next_pos == Cargo) {
+            level->board[player_next_pos.x][player_next_pos.y] = Empty;
+        } else if (at_player_next_pos == GoalCargo) {
+            level->board[player_next_pos.x][player_next_pos.y] = Goal;
+        }
+        level->playerPos = player_next_pos;
+    }
+
+    return move_player;
 }
 
 static void init_level(Level *l)
